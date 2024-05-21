@@ -10,6 +10,8 @@ MAX_HEIGHT_IMG = 500
 
 file_path = ""
 
+# Load model
+yolov8_model = YOLO('model/yolov8/weights/best.pt') 
 def open_file():
     global file_path  # Use global variable for file_path
 
@@ -32,8 +34,6 @@ def display_image(image_path):
     imgLabel.configure(image=photo)
     imgLabel.image = photo  # Keep a reference to the image object
 
-
-
 def resize_image(image, max_width, max_height):
     width_ratio = max_width / image.width
     height_ratio = max_height / image.height
@@ -51,12 +51,9 @@ def predict():
     if not file_path:
         predictLabel.configure(text="No image selected")
         return
-    ## YOLOV8
-    # Load model
-    model = YOLO('model/yolov8/weights/best.pt') 
 
     # Predict on image
-    results = model(file_path)
+    results = yolov8_model(file_path)
 
     # Get the class names and probabilities list
     name_class = results[0].names
@@ -80,16 +77,19 @@ root = ctk.CTk()
 root.title("Pneumonia Prediction Application")
 root.geometry(f"{MAX_WIDTH}x{MAX_HEIGHT}")
 
-# Create a frame for the buttons
-button_frame = ctk.CTkFrame(master=root,bg_color="black")
+# Set the same background color for root and button frame
+root_bg_color = root.cget("bg")
+
+# Create a frame for the buttons with the same background color
+button_frame = ctk.CTkFrame(master=root, fg_color=root_bg_color, corner_radius=0)
 button_frame.pack(pady=20)
 
 # Create a button to open the file dialog
-open_button = ctk.CTkButton(master=button_frame, text="Open Image", command=open_file,font=("JetBrains Mono", 20))
+open_button = ctk.CTkButton(master=button_frame, text="Open Image", command=open_file, font=("JetBrains Mono", 20))
 open_button.pack(side="left", pady=20)
 
 # Create a button to predict
-predict_button = ctk.CTkButton(master=button_frame, text="Predict", command=predict,font=("JetBrains Mono", 20))
+predict_button = ctk.CTkButton(master=button_frame, text="Predict", command=predict, font=("JetBrains Mono", 20))
 predict_button.pack(side='left', padx=10)
 
 # Create a label widget to display the image
@@ -97,7 +97,7 @@ imgLabel = ctk.CTkLabel(master=root, text="")
 imgLabel.pack(pady=20)
 
 # Create a label to predict the image
-predictLabel = ctk.CTkLabel(master=root, text="",font=("JetBrains Mono", 24))
+predictLabel = ctk.CTkLabel(master=root, text="", font=("JetBrains Mono", 24))
 predictLabel.pack(pady=10)
 
 # Start the main event loop
