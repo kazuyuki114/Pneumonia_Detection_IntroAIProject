@@ -63,19 +63,23 @@ def predict():
     # Predict on image
     results = yolov8_model(file_path)
 
-    # Get the class names and probabilities list
+    # Assuming results[0].names is a dictionary like {0: 'COVID-19', 1: 'Normal', 2: 'Pneumonia'}
     name_class = results[0].names
     probs = results[0].probs.data.tolist()
 
-    # Get the class of the image and the probability
+    # Format the results into a string
+    result_text = "Predictions:\n"
+    for i, prob in enumerate(probs):
+        result_text += f"{name_class[i]}: {prob:.5f}\n"
+
+    # Get the class of the image with the highest probability
     highest_prob = max(probs)
     max_index = probs.index(highest_prob)
-    print(highest_prob)
-    print(name_class[max_index])
+    status = name_class[max_index]
 
-    
     # Display the result on screen
-    predictLabel.configure(text="Status: " + name_class[max_index] + "\nProbability: " + str(highest_prob))
+    result_text += f"\nStatus: {status} with probability {highest_prob:.5f}"
+    predictLabel.configure(text=result_text)
 
 # Initialize customtkinter
 ctk.set_appearance_mode("Dark") 
@@ -110,7 +114,7 @@ imgNameLabel = ctk.CTkLabel(master=root,text="",font=("JetBrains Mono", 18))
 imgNameLabel.pack(pady=5)
 
 # Create a label to predict the image
-predictLabel = ctk.CTkLabel(master=root, text="", font=("JetBrains Mono", 20))
+predictLabel = ctk.CTkLabel(master=root, text="", font=("JetBrains Mono", 18))
 predictLabel.pack(pady=10)
 
 # Start the main event loop
